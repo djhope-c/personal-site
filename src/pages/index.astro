@@ -1,0 +1,63 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+// TODO: replace with your real profile URLs
+const LINKEDIN_URL = 'https://www.linkedin.com/in/your-handle';
+const X_URL = 'https://x.com/your-handle';
+const NAME = 'Your Name';
+const TAGLINE = 'A short line about what you do.';
+---
+
+<Layout title={NAME}>
+	<section class="hero">
+		<h1>{NAME}</h1>
+		<p class="tagline">{TAGLINE}</p>
+
+		<ul class="links">
+			<li><a href={LINKEDIN_URL} target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
+			<li><a href={X_URL} target="_blank" rel="noopener noreferrer">X</a></li>
+			<li><a href="/books">Books</a></li>
+			<li><a href="/projects">Projects</a></li>
+		</ul>
+	</section>
+
+	<style>
+		.hero {
+			min-height: 60vh;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+		}
+
+		h1 {
+			font-size: clamp(2rem, 5vw, 3rem);
+			margin: 0 0 0.5rem;
+		}
+
+		.tagline {
+			color: var(--muted);
+			margin: 0 0 2.5rem;
+			font-size: 1.1rem;
+		}
+
+		.links {
+			list-style: none;
+			padding: 0;
+			margin: 0;
+			display: flex;
+			flex-direction: column;
+			gap: 0.6rem;
+			font-size: 1.05rem;
+		}
+
+		.links a {
+			text-decoration: none;
+			border-bottom: 1px solid transparent;
+			transition: border-color 0.15s ease;
+		}
+
+		.links a:hover {
+			border-color: var(--fg);
+		}
+	</style>
+</Layout>

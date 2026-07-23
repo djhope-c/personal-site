@@ -1,0 +1,39 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { books } from '../data/books';
+---
+
+<Layout title="Books">
+	{
+		books.length === 0 ? (
+			<p class="empty">Books coming soon.</p>
+		) : (
+			<div class="grid">
+				{books.map((book) => (
+					<img src={book.cover} alt={`${book.title} by ${book.author}`} loading="lazy" />
+				))}
+			</div>
+		)
+	}
+
+	<style>
+		.empty {
+			color: var(--muted);
+		}
+
+		.grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+			gap: 1.25rem;
+		}
+
+		.grid img {
+			width: 100%;
+			height: auto;
+			aspect-ratio: 2 / 3;
+			object-fit: cover;
+			border-radius: 2px;
+			box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+		}
+	</style>
+</Layout>
