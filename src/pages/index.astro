@@ -1,17 +1,16 @@
 ---
 import Layout from '../layouts/Layout.astro';
 
-// TODO: replace with your real profile URLs
 const LINKEDIN_URL = 'https://www.linkedin.com/in/dovilejakutyte';
-const X_URL = 'https://x.com/your-handle';
-const NAME = 'Your Name';
-const TAGLINE = 'A short line about what you do.';
+const X_URL = 'https://x.com/dovijaku';
+const NAME = 'Dovi Jaku';
+const TAGLINE = '';
 ---
 
 <Layout title={NAME}>
 	<section class="hero">
 		<h1>{NAME}</h1>
-		<p class="tagline">{TAGLINE}</p>
+		{TAGLINE && <p class="tagline">{TAGLINE}</p>}
 
 		<ul class="links">
 			<li><a href={LINKEDIN_URL} target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
