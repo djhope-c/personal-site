@@ -3,21 +3,34 @@ import Layout from '../layouts/Layout.astro';
 
 const LINKEDIN_URL = 'https://www.linkedin.com/in/dovilejakutyte';
 const X_URL = 'https://x.com/dovijaku';
+const EMAIL = 'dovi.jaku@gmail.com';
 const NAME = 'Dovi Jaku';
-const TAGLINE = '';
 ---
 
 <Layout title={NAME}>
 	<section class="hero">
-		<h1>{NAME}</h1>
-		{TAGLINE && <p class="tagline">{TAGLINE}</p>}
+		<div class="name-row">
+			<h1>{NAME}</h1>
+			<nav class="inline-nav" aria-label="Site sections">
+				<a href="/bookshelf">bookshelf</a>
+				<span aria-hidden="true">·</span>
+				<a href="/projects">projects</a>
+			</nav>
+		</div>
 
-		<ul class="links">
-			<li><a href={LINKEDIN_URL} target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
-			<li><a href={X_URL} target="_blank" rel="noopener noreferrer">X</a></li>
-			<li><a href="/books">Books</a></li>
-			<li><a href="/projects">Projects</a></li>
-		</ul>
+		<div class="bio">
+			<p>Hello, I'm Dovi. I'm a senior from Lithuania studying economics and data science at Upenn.</p>
+			<p>I'm interested in tech, datacenters, digital assets and fashion.</p>
+			<p>
+				Right now I'm interning at Galaxy Digital where I do institutional infrastructure sales and strategy.
+				You can reach me at {EMAIL}
+			</p>
+			<p class="socials">
+				<a href={LINKEDIN_URL} target="_blank" rel="noopener noreferrer">LinkedIn</a>
+				<span aria-hidden="true">·</span>
+				<a href={X_URL} target="_blank" rel="noopener noreferrer">X</a>
+			</p>
+		</div>
 	</section>
 
 	<style>
@@ -28,35 +41,74 @@ const TAGLINE = '';
 			justify-content: center;
 		}
 
+		.name-row {
+			display: flex;
+			align-items: baseline;
+			gap: 2.5rem;
+			flex-wrap: wrap;
+			margin: 0 0 1.5rem;
+		}
+
 		h1 {
 			font-size: clamp(2rem, 5vw, 3rem);
-			margin: 0 0 0.5rem;
-		}
-
-		.tagline {
-			color: var(--muted);
-			margin: 0 0 2.5rem;
-			font-size: 1.1rem;
-		}
-
-		.links {
-			list-style: none;
-			padding: 0;
 			margin: 0;
+		}
+
+		.inline-nav {
+			font-size: 0.85rem;
+			color: var(--muted);
 			display: flex;
-			flex-direction: column;
 			gap: 0.6rem;
-			font-size: 1.05rem;
+			align-items: center;
 		}
 
-		.links a {
+		.inline-nav a {
+			color: inherit;
 			text-decoration: none;
-			border-bottom: 1px solid transparent;
-			transition: border-color 0.15s ease;
+			border-bottom: 1px solid currentColor;
+			transition: opacity 0.15s ease;
 		}
 
-		.links a:hover {
-			border-color: var(--fg);
+		.inline-nav a:hover {
+			opacity: 0.6;
+		}
+
+		.inline-nav span {
+			opacity: 0.5;
+		}
+
+		.bio {
+			max-width: 42rem;
+			font-size: 1.05rem;
+			line-height: 1.6;
+		}
+
+		.bio p {
+			margin: 0 0 1rem;
+		}
+
+		.socials {
+			font-size: 0.85rem;
+			color: var(--muted);
+			display: flex;
+			gap: 0.6rem;
+			align-items: center;
+			margin-top: 1.5rem !important;
+		}
+
+		.socials a {
+			color: inherit;
+			text-decoration: none;
+			border-bottom: 1px solid currentColor;
+			transition: opacity 0.15s ease;
+		}
+
+		.socials a:hover {
+			opacity: 0.6;
+		}
+
+		.socials span {
+			opacity: 0.5;
 		}
 	</style>
 </Layout>
