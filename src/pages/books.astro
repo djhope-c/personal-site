@@ -1,39 +1,293 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { books } from '../data/books';
+
+// Deterministic hash so each book gets a stable color / size on every visit.
+function hash(input: string): number {
+	let h = 0;
+	for (let i = 0; i < input.length; i++) {
+		h = (h << 5) - h + input.charCodeAt(i);
+		h |= 0;
+	}
+	return Math.abs(h);
+}
+
+// Book-spine palette (background, foreground text). Muted, library-feel.
+const SPINE_PALETTE = [
+	{ bg: '#8faf87', fg: '#f5f0e6' },
+	{ bg: '#a4c3d2', fg: '#1e2a33' },
+	{ bg: '#e8c19f', fg: '#4a2e18' },
+	{ bg: '#d68d3c', fg: '#33190a' },
+	{ bg: '#c94e3d', fg: '#f5e6d3' },
+	{ bg: '#c9a94a', fg: '#33260a' },
+	{ bg: '#e8c94a', fg: '#33260a' },
+	{ bg: '#4a8c94', fg: '#f5f0e6' },
+	{ bg: '#1a1a1a', fg: '#e8e2d3' },
+	{ bg: '#efe4c8', fg: '#3a2e1e' },
+	{ bg: '#8f9099', fg: '#1a1a1a' },
+	{ bg: '#7fb0c9', fg: '#f5f0e6' },
+	{ bg: '#2f2f34', fg: '#e8e2d3' },
+	{ bg: '#c9612a', fg: '#f5e6d3' },
+];
+
+const decorated = books.map((book, i) => {
+	const seed = book.title + String(i);
+	const palette = SPINE_PALETTE[hash(seed) % SPINE_PALETTE.length];
+	const width = 34 + (hash(seed + 'w') % 22); // 34–55px
+	const height = 260 + (hash(seed + 'h') % 70); // 260–329px
+	return { ...book, palette, width, height };
+});
 ---
 
 <Layout title="Books">
-	{
-		books.length === 0 ? (
-			<p class="empty">Books coming soon.</p>
-		) : (
-			<div class="grid">
-				{books.map((book) => (
-					<img src={book.cover} alt={`${book.title} by ${book.author}`} loading="lazy" />
-				))}
+	<section class="stage">
+		<div class="shelf-wrap">
+			<ol class="shelf" role="list">
+				{
+					decorated.map((book, i) => (
+						<li>
+							<button
+								class="spine"
+								type="button"
+								data-index={i}
+								data-title={book.title}
+								data-cover={book.cover}
+								style={`--bg:${book.palette.bg};--fg:${book.palette.fg};--w:${book.width}px;--h:${book.height}px;`}
+								aria-label={`Open details for ${book.title}`}
+							>
+								<span class="title">{book.title}</span>
+							</button>
+						</li>
+					))
+				}
+			</ol>
+			<div class="shelf-board" aria-hidden="true"></div>
+		</div>
+	</section>
+
+	<dialog class="detail" id="detail" aria-labelledby="detail-title">
+		<button class="detail-close" type="button" id="detail-close" aria-label="Close">
+			×
+		</button>
+		<div class="detail-inner">
+			<img class="detail-cover" id="detail-cover" src="" alt="" />
+			<div class="detail-text">
+				<h2 class="detail-h" id="detail-title"></h2>
 			</div>
-		)
-	}
+		</div>
+	</dialog>
 
 	<style>
-		.empty {
-			color: var(--muted);
+		.stage {
+			display: flex;
+			justify-content: center;
+			align-items: flex-end;
+			min-height: 70vh;
+			padding-top: 4rem;
 		}
 
-		.grid {
+		.shelf-wrap {
+			width: 100%;
+			max-width: 1100px;
+			overflow-x: auto;
+			overflow-y: visible;
+			padding: 4rem 1rem 0;
+			scrollbar-width: thin;
+		}
+
+		.shelf {
+			list-style: none;
+			padding: 0;
+			margin: 0;
+			display: flex;
+			align-items: flex-end;
+			justify-content: center;
+			gap: 2px;
+			min-width: min-content;
+		}
+
+		.shelf li {
+			display: flex;
+			align-items: flex-end;
+		}
+
+		.spine {
+			position: relative;
+			width: var(--w);
+			height: var(--h);
+			background: var(--bg);
+			color: var(--fg);
+			border: none;
+			padding: 12px 4px 14px;
+			cursor: pointer;
+			border-radius: 2px 2px 0 0;
+			box-shadow:
+				inset -2px 0 0 rgba(0, 0, 0, 0.08),
+				inset 2px 0 0 rgba(255, 255, 255, 0.08),
+				0 2px 4px rgba(0, 0, 0, 0.2);
+			display: flex;
+			align-items: flex-start;
+			justify-content: center;
+			transition:
+				transform 0.22s cubic-bezier(0.22, 0.61, 0.36, 1),
+				box-shadow 0.22s ease;
+			font: inherit;
+		}
+
+		.spine:hover,
+		.spine:focus-visible {
+			transform: translateY(-14px);
+			box-shadow:
+				inset -2px 0 0 rgba(0, 0, 0, 0.08),
+				inset 2px 0 0 rgba(255, 255, 255, 0.08),
+				0 10px 18px rgba(0, 0, 0, 0.28);
+			outline: none;
+		}
+
+		.title {
+			writing-mode: vertical-rl;
+			text-orientation: mixed;
+			font-size: 0.72rem;
+			font-weight: 600;
+			letter-spacing: 0.02em;
+			line-height: 1;
+			text-align: left;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			max-height: 100%;
+		}
+
+		.shelf-board {
+			height: 8px;
+			background: linear-gradient(
+				to bottom,
+				rgba(0, 0, 0, 0.15),
+				rgba(0, 0, 0, 0.05)
+			);
+			margin-top: 0;
+			border-radius: 0 0 2px 2px;
+			max-width: 1100px;
+			min-width: min-content;
+		}
+
+		@media (prefers-color-scheme: dark) {
+			.shelf-board {
+				background: linear-gradient(
+					to bottom,
+					rgba(255, 255, 255, 0.08),
+					rgba(255, 255, 255, 0.02)
+				);
+			}
+		}
+
+		/* --- Detail overlay --- */
+		.detail {
+			border: none;
+			background: transparent;
+			padding: 0;
+			margin: auto;
+			max-width: 900px;
+			width: 90vw;
+			color: var(--fg);
+		}
+
+		.detail::backdrop {
+			background: rgba(20, 20, 20, 0.55);
+			backdrop-filter: blur(6px);
+		}
+
+		.detail[open] {
+			animation: fade-in 0.25s ease;
+		}
+
+		@keyframes fade-in {
+			from {
+				opacity: 0;
+				transform: translateY(8px);
+			}
+			to {
+				opacity: 1;
+				transform: none;
+			}
+		}
+
+		.detail-close {
+			position: absolute;
+			top: 1rem;
+			right: 1rem;
+			width: 2rem;
+			height: 2rem;
+			border-radius: 50%;
+			border: none;
+			background: rgba(255, 255, 255, 0.85);
+			color: #1a1a1a;
+			font-size: 1.25rem;
+			line-height: 1;
+			cursor: pointer;
 			display: grid;
-			grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-			gap: 1.25rem;
+			place-items: center;
 		}
 
-		.grid img {
+		.detail-inner {
+			display: grid;
+			grid-template-columns: minmax(180px, 260px) 1fr;
+			gap: 2.5rem;
+			align-items: center;
+			padding: 2.5rem;
+			background: var(--bg);
+			color: var(--fg);
+			border-radius: 8px;
+			box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
+		}
+
+		.detail-cover {
 			width: 100%;
 			height: auto;
 			aspect-ratio: 2 / 3;
 			object-fit: cover;
-			border-radius: 2px;
-			box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+			border-radius: 3px;
+			box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+		}
+
+		.detail-h {
+			margin: 0 0 0.5rem;
+			font-size: clamp(1.5rem, 3vw, 2rem);
+			font-family: 'Georgia', 'Times New Roman', serif;
+		}
+
+		@media (max-width: 640px) {
+			.detail-inner {
+				grid-template-columns: 1fr;
+				gap: 1.5rem;
+				padding: 1.5rem;
+			}
 		}
 	</style>
+
+	<script>
+		const dialog = document.getElementById('detail') as HTMLDialogElement | null;
+		const cover = document.getElementById('detail-cover') as HTMLImageElement | null;
+		const titleEl = document.getElementById('detail-title');
+		const closeBtn = document.getElementById('detail-close');
+
+		if (dialog && cover && titleEl && closeBtn) {
+			document.querySelectorAll<HTMLButtonElement>('.spine').forEach((spine) => {
+				spine.addEventListener('click', () => {
+					const title = spine.dataset.title ?? '';
+					const src = spine.dataset.cover ?? '';
+					titleEl.textContent = title;
+					cover.src = src;
+					cover.alt = title;
+					dialog.showModal();
+				});
+			});
+
+			closeBtn.addEventListener('click', () => dialog.close());
+			// close when clicking the backdrop (outside the inner card)
+			dialog.addEventListener('click', (event) => {
+				if (event.target === dialog) dialog.close();
+			});
+		}
+	</script>
 </Layout>
