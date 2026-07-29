@@ -20,7 +20,6 @@ export const books: Book[] = [
 	{ title: 'Stubborn Attachments', cover: '/books/stubborn-attachments.jpg' },
 	{ title: 'Suicidal Empathy', cover: '/books/suicidal-empathy.jpg' },
 	{ title: 'Superforecasting', cover: '/books/superforecasting.jpg' },
-	{ title: 'The Briar Club', cover: '/books/the-briar-club.jpg' },
 	{ title: 'The Cold Start Problem', cover: '/books/the-cold-start-problem.jpg' },
 	{ title: 'The Mom Test', cover: '/books/the-mom-test.jpg' },
 	{ title: 'The Psychology of Selling', cover: '/books/the-psychology-of-selling.jpg' },
