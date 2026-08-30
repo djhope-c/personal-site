@@ -5,9 +5,29 @@ const LINKEDIN_URL = 'https://www.linkedin.com/in/dovilejakutyte';
 const X_URL = 'https://x.com/dovijaku';
 const EMAIL = 'dovi.jaku@gmail.com';
 const NAME = 'Dovi Jaku';
+
+// Lithuanian "trees of dawn" ethnographic symbols, sliced from the source plate.
+const symbols = Array.from(
+	{ length: 22 },
+	(_, i) => `/symbols/sym-${String(i + 1).padStart(2, '0')}.png`,
+);
+// Duplicated once so the marquee track can loop seamlessly at -50%.
+const marquee = [...symbols, ...symbols];
 ---
 
 <Layout title={NAME}>
+	<!-- Scrolling ethnographic-symbol tickers, top and bottom -->
+	<div class="ticker ticker-top" aria-hidden="true">
+		<div class="ticker-track">
+			{marquee.map((src) => <img class="glyph" src={src} alt="" />)}
+		</div>
+	</div>
+	<div class="ticker ticker-bottom" aria-hidden="true">
+		<div class="ticker-track">
+			{marquee.map((src) => <img class="glyph" src={src} alt="" />)}
+		</div>
+	</div>
+
 	<section class="hero">
 		<div class="name-row">
 			<h1>{NAME}</h1>
@@ -19,7 +39,17 @@ const NAME = 'Dovi Jaku';
 		</div>
 
 		<div class="bio">
-			<p>Hello, I'm Dovi. I'm a senior from Lithuania studying economics and data science at Upenn.</p>
+			<p>Hello, I'm Dovi. I'm a senior from <span class="geo" tabindex="0">Lithuania<span
+						class="geo-card"
+						role="tooltip"
+					>
+						<img
+							class="geo-map"
+							src="/lithuania-map.png"
+							alt="Map showing Lithuania highlighted in the Baltic region"
+							loading="lazy"
+						/>
+					</span></span> studying economics and data science at Upenn.</p>
 			<p>I'm interested in tech, datacenters, digital assets and fashion.</p>
 			<p>
 				Right now I'm interning at Galaxy Digital where I do institutional infrastructure sales and strategy.
@@ -34,6 +64,71 @@ const NAME = 'Dovi Jaku';
 	</section>
 
 	<style>
+		/* --- Scrolling symbol tickers (top + bottom) --- */
+		.ticker {
+			position: fixed;
+			left: 0;
+			right: 0;
+			height: clamp(48px, 7vh, 84px);
+			overflow: hidden;
+			z-index: 5;
+			pointer-events: none;
+			display: flex;
+			align-items: center;
+		}
+
+		.ticker-top { top: 0; }
+		.ticker-bottom { bottom: 0; }
+
+		.ticker-track {
+			display: flex;
+			align-items: center;
+			gap: clamp(1.5rem, 3vw, 3rem);
+			flex: none;
+			width: max-content;
+			padding-left: clamp(1.5rem, 3vw, 3rem);
+			/* -50% because the list is duplicated once → seamless loop */
+			animation: ticker-scroll 70s linear infinite;
+		}
+
+		/* bottom row drifts a touch slower for a subtle parallax feel */
+		.ticker-bottom .ticker-track {
+			animation-duration: 90s;
+		}
+
+		@keyframes ticker-scroll {
+			from { transform: translateX(0); }
+			to   { transform: translateX(-50%); }
+		}
+
+		@media (prefers-reduced-motion: reduce) {
+			.ticker-track { animation: none; }
+		}
+
+		.glyph {
+			height: clamp(34px, 5vh, 60px);
+			width: auto;
+			flex: none;
+			opacity: 0.85;
+		}
+
+		@media (prefers-color-scheme: dark) {
+			/* symbols are black strokes on transparency → invert for dark bg */
+			.glyph { filter: invert(1); opacity: 0.8; }
+		}
+
+		/* Keep the nav and content clear of the tickers on this page */
+		:global(header) {
+			position: relative;
+			z-index: 6;
+			padding-top: clamp(4.5rem, 10vh, 7rem) !important;
+		}
+
+		:global(main) {
+			position: relative;
+			z-index: 6;
+		}
+
 		.hero {
 			min-height: 60vh;
 			display: flex;
@@ -81,6 +176,60 @@ const NAME = 'Dovi Jaku';
 			max-width: 42rem;
 			font-size: 1.05rem;
 			line-height: 1.6;
+		}
+
+		/* --- Hover map popover on "Lithuania" --- */
+		.geo {
+			position: relative;
+			color: inherit;
+			border-bottom: 1px dotted currentColor;
+			cursor: help;
+			outline: none;
+		}
+
+		.geo-card {
+			position: absolute;
+			left: 50%;
+			bottom: calc(100% + 12px);
+			transform: translateX(-50%) translateY(6px) scale(0.96);
+			width: 220px;
+			padding: 6px;
+			background: var(--bg);
+			border: 1px solid var(--muted);
+			border-radius: 10px;
+			box-shadow: 0 12px 30px rgba(0, 0, 0, 0.22);
+			opacity: 0;
+			visibility: hidden;
+			transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
+			z-index: 20;
+			pointer-events: none;
+		}
+
+		/* little arrow */
+		.geo-card::after {
+			content: '';
+			position: absolute;
+			top: 100%;
+			left: 50%;
+			transform: translateX(-50%);
+			border: 7px solid transparent;
+			border-top-color: var(--bg);
+			filter: drop-shadow(0 1px 0 var(--muted));
+		}
+
+		.geo:hover .geo-card,
+		.geo:focus-visible .geo-card,
+		.geo:focus-within .geo-card {
+			opacity: 1;
+			visibility: visible;
+			transform: translateX(-50%) translateY(0) scale(1);
+		}
+
+		.geo-map {
+			display: block;
+			width: 100%;
+			height: auto;
+			border-radius: 6px;
 		}
 
 		.bio p {
